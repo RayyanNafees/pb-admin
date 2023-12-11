@@ -1,7 +1,7 @@
 import PocketBase, { type AuthModel } from 'pocketbase'
 import { useState } from 'preact/hooks'
 
-const pb = new PocketBase('http://127.0.0.1:8090')
+const pb = new PocketBase(import.meta.env.PB_HOST)
 
 const auth = async (email: string, pass: string) =>
   await pb.collection('users').authWithPassword(email, pass)
@@ -35,9 +35,9 @@ export default () => {
       new FormData(form).entries()
     ) as { email: string; pass: string }
 
-    const userExists = await emailExists(email).then(() => !Boolean(setEmailInfo('User Already Exists'))).catch((e) =>
-      setEmailInfo('Username Available')
-    )
+    const userExists = await emailExists(email)
+      .then(() => !Boolean(setEmailInfo('User Already Exists')))
+      .catch((e) => setEmailInfo('Username Available'))
 
     if (!userExists)
       await createUser(email, pass)
@@ -47,34 +47,28 @@ export default () => {
           return auth(email, pass)
         })
         .then((authData: AuthModel) => {
-          if (pb.authStore.isValid)
-            window.location.assign('/')
+          if (pb.authStore.isValid) window.location.assign('/')
         })
 
     setLoading(false)
   }
 
   return (
-    <>
-      <hr />
+    <main className='container'>
+      <form onSubmit={handleSubmit}>
+        <input
+          name='email'
+          type='email'
+          aria-invalid={emailInfo.length ? 'true' : 'false'}
+          onInput={() => setEmailInfo('')}
+        />
+        {emailInfo && <small className='error'>{emailInfo}</small>}
 
-      <main className='container'>
-        <form onSubmit={handleSubmit}>
-          <input name='email' type='email' />
-          {emailInfo && <small className='warning'>{emailInfo}</small>}
+        <input name='pass' type='password' autoComplete={'true'} />
+        {passInfo && <small className='warning'>{passInfo}</small>}
 
-          <input name='pass' type='password' autoComplete={'true'} />
-          {passInfo && <small className='warning'>{passInfo}</small>}
-
-          <input type='submit' disabled={loading} />
-
-          {loading && (
-            <p>
-              <progress></progress>
-            </p>
-          )}
-        </form>
-      </main>
-    </>
+        <input type='submit' disabled={loading} aria-busy={loading} />
+      </form>
+    </main>
   )
 }
