@@ -16,11 +16,26 @@ Once u have crafted your dashboard UI, build it to `server/pb_public` directory
 bun run build
 ```
 
-# Starting the server
+## Starting the server
 Now start the pocketbase instance
 ```bash
 ./server/pocketbase serve
 ```
 
-# Usage
+## Usage
 Visit [http://localhost:8090](http://127.0.0.1:8090) to see your admin panel working on live changes
+
+## Development
+For development ease, u can run the Pocketbase instance `http://localhost:8090` on it's own server and code the Admin Panel on Astro Dev server `http://localhost:4321`
+
+Just replace add the `PUBLIC_PB_URL` to a `.env` file
+```env
+PUBLIC_PB_URL='http://localhost:8090'
+```
+
+And run the astro dev server to develop UI, seeing changes LIVE via Astro HOT reloads without having to build and check every time u change the code
+```bash
+bun run dev
+```
+---
+> This project currently works on Linux, if u want to run it on any other OS (eg. Windows) do change the Pocketbase executable from `server` folder by dowloading from their [docs](https://pocketbase.io/docs)
