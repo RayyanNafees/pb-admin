@@ -37,5 +37,17 @@ And run the astro dev server to develop UI, seeing changes LIVE via Astro HOT re
 ```bash
 bun run dev
 ```
+
+## TODO
+- [ ] create it offline-first with service workers
+- [ ] Use the pocketbase `/hash` endpoint to check for cloud changes to sync with the client on connection
+- [ ] A method to check for user connectivity over fetch
+- [ ] Storing images in IndexedDB using Dexie
+
+
+
 ---
+
+
+
 > This project currently works on Linux, if u want to run it on any other OS (eg. Windows) do change the Pocketbase executable from `server` folder by dowloading from their [docs](https://pocketbase.io/docs)
