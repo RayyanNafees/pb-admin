@@ -1,20 +1,11 @@
-import PocketBase, { type ClientResponseError } from 'pocketbase'
-import { useState } from 'preact/hooks'
-
-const pb = new PocketBase(import.meta.env.PUBLIC_PB_HOST)
-
-const auth = async (email: string, pass: string) =>
-  await pb.collection('users').authWithPassword(email, pass)
-
-const createUser = async (email: string, pass: string) =>
-  await pb.collection('users').create({
-    email,
-    password: pass,
-    passwordConfirm: pass,
-    emailVisibility: true,
-  })
+import { useEffect, useState } from 'preact/hooks'
+import pb, {createUser, auth} from '../lib/pb'
 
 export default () => {
+  useEffect(()=>{
+    
+  }, [])  
+
   const [loading, setLoading] = useState(false)
   const [emailError, setEmailError] = useState('')
   const [invalid, setInvalid] = useState<null | 'true' | 'false'>(null)
@@ -57,7 +48,7 @@ export default () => {
   }
 
   return (
-    <main>
+    <main className='container'>
       <h1 aria-busy={loading}>Login</h1>
       <form onSubmit={handleSubmit}>
         <input name='email' type='email' aria-invalid={invalid ?? 'grammar'} />

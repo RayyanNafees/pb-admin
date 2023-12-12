@@ -1,0 +1,13 @@
+---
+
+---
+
+<script>
+  import PocketBase from 'pocketbase'
+
+  const pb = new PocketBase(import.meta.env.PUBLIC_PB_HOST)
+
+  pb.authStore.clear()
+
+  window.location.replace('/login')
+</script>

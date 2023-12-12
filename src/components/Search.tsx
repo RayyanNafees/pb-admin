@@ -34,17 +34,32 @@ export default () => {
   }
 
   return (
-    <div class='grid'>
+    <main class='container'>
       <h1>Searching Records</h1>
-
-      <input
-        type='search'
-        id='search'
-        name='search'
-        placeholder='Search for the record'
-        onInput={handleSearch}
-        aria-busy={loading}
-      />
+      <nav>
+        <ul>
+          <li>
+            <strong>
+              <input
+                type='search'
+                id='search'
+                name='search'
+                placeholder='Search for the record'
+                onInput={handleSearch}
+                aria-busy={loading}
+              />
+            </strong>
+          </li>
+        </ul>
+        <ul>
+          <li>
+            <a href='/login'>Login</a>
+            <a href='/logout' role='button'>
+              Login
+            </a>
+          </li>
+        </ul>
+      </nav>
 
       {loading && (
         <a href='#' aria-busy='true'>
@@ -66,6 +81,6 @@ export default () => {
           </article>
         ))}
       </main>
-    </div>
+    </main>
   )
 }
