@@ -8,8 +8,12 @@ export default () => {
   }, [])
 
   const [loading, setLoading] = useState(false)
+
   const [emailError, setEmailError] = useState('')
+  const [passError, setPassError] = useState('')
+
   const [invalid, setInvalid] = useState<null | 'true' | 'false'>(null)
+  const [invalidPass, setInvalidPass] = useState<null | 'true' | 'false'>(null)
 
   const handleSubmit = async (e: SubmitEvent) => {
     e.preventDefault()
@@ -39,9 +43,14 @@ export default () => {
       .catch((e: ClientResponseError) => {
         console.log({ e })
         if (e.status === 400) {
-          if (e.data.data.email.code === 'validation_invalid_email') {
+          const { email, password } = e.data.data
+          if (email) {
             setInvalid('true')
-            setEmailError(e.data.data.email.message)
+            setEmailError(email.message)
+          }
+          if (password){
+            setInvalidPass('true')
+            setPassError(password.message)
           }
         }
       })
@@ -51,12 +60,13 @@ export default () => {
 
   return (
     <main className='container'>
-      <h1 aria-busy={loading}>Login</h1>
+      <h1 aria-busy={loading}>Create User</h1>
       <form onSubmit={handleSubmit}>
         <input name='email' type='email' aria-invalid={invalid ?? 'grammar'} />
         {invalid === 'true' && <small className='error'>{emailError}</small>}
 
-        <input name='pass' type='password' />
+        <input name='pass' type='password' autoComplete={'true'} aria-invalid={invalidPass ?? 'grammar'}  />
+        {invalidPass === 'true' && <small className='error'>{passError}</small>}
 
         {loading && <progress></progress>}
         <input type='submit' disabled={loading} />

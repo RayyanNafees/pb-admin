@@ -48,8 +48,10 @@ export default () => {
         <ul>
           <li>
             <a href='/login'>Login</a>
+          </li>
+          <li>
             <a href='/logout' role='button'>
-              Login
+              Log Out
             </a>
           </li>
         </ul>
@@ -74,7 +76,9 @@ export default () => {
           <article>
             <hgroup>
               <h1>{rec.name}</h1>
-              <i><small>{rec.id}</small></i>
+              <i>
+                <small>{rec.id}</small>
+              </i>
               <h2>{rec.email}</h2>
             </hgroup>
           </article>

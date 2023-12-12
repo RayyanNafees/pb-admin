@@ -1,7 +1,16 @@
 ---
-import pb from '../lib/pb'
-
-pb.authStore.clear()
-
-return Astro.redirect('/')
+import '@picocss/pico/css/pico.classless.min.css'
 ---
+
+
+
+<script>
+  import pb from '../lib/pb'
+  pb.authStore.clear()
+  if (!pb.authStore.isValid) window.location.replace('/login')
+</script>
+<body>
+  <main>
+    <a href='/login' aria-busy='true'>Logging out, Please wait...</a>
+  </main>
+</body>
