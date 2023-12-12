@@ -1,7 +1,6 @@
 /// <reference types="astro/client" />
 
 interface ImportMetaEnv {
-  readonly PUBLIC_PB_HOST: string;
   // more env variables...
 }
 

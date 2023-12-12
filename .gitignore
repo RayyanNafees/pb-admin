@@ -6,6 +6,7 @@ dist/
 # server
 pb_data
 pb_migrations
+pb_public
 
 # dependencies
 node_modules/

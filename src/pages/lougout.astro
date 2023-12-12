@@ -3,9 +3,7 @@
 ---
 
 <script>
-  import PocketBase from 'pocketbase'
-
-  const pb = new PocketBase(import.meta.env.PUBLIC_PB_HOST)
+  import pb from '../lib/pb'
 
   pb.authStore.clear()
 
