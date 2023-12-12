@@ -4,12 +4,11 @@ import PocketBase, { type RecordModel } from 'pocketbase'
 const pb = new PocketBase(import.meta.env.PB_HOST)
 
 export default () => {
-  const [state, setState] = useState('')
   const [records, setRecords] = useState<RecordModel[]>([])
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    if (!pb.authStore.isValid) window.location.assign('/login')
+    // if (!pb.authStore.isValid) window.location.assign('/login')
   }, [])
 
   const handleSearch = async ({

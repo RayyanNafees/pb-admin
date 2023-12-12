@@ -1,7 +1,7 @@
-import PocketBase, { type AuthModel } from 'pocketbase'
+import PocketBase, { type ClientResponseError } from 'pocketbase'
 import { useState } from 'preact/hooks'
 
-const pb = new PocketBase(import.meta.env.PB_HOST)
+const pb = new PocketBase(import.meta.env.PUBLIC_PB_HOST)
 
 const auth = async (email: string, pass: string) =>
   await pb.collection('users').authWithPassword(email, pass)
@@ -14,16 +14,10 @@ const createUser = async (email: string, pass: string) =>
     emailVisibility: true,
   })
 
-const emailExists = async (email: string): Promise<boolean> => {
-  const user = await pb.collection('users').getFirstListItem(`email="${email}"`)
-
-  return Boolean(user?.id)
-}
-
 export default () => {
   const [loading, setLoading] = useState(false)
-  const [emailInfo, setEmailInfo] = useState('')
-  const [passInfo, setPassInfo] = useState('')
+  const [emailError, setEmailError] = useState('')
+  const [invalid, setInvalid] = useState<null | 'true' | 'false'>(null)
 
   const handleSubmit = async (e: SubmitEvent) => {
     e.preventDefault()
@@ -35,39 +29,46 @@ export default () => {
       new FormData(form).entries()
     ) as { email: string; pass: string }
 
-    const userExists = await emailExists(email)
-      .then(() => !Boolean(setEmailInfo('User Already Exists')))
-      .catch((e) => setEmailInfo('Username Available'))
-
-    if (!userExists)
       await createUser(email, pass)
-        .catch(console.error)
-        .then((res) => {
-          console.log('User Created', res)
-          return auth(email, pass)
+        .catch((e) => {
+          console.log({ e })
+          if (e.code === 400) {
+            if (e.data.email.code === 'validation_invalid_email') {
+              setInvalid('true')
+              setEmailError(e.data.email.message)
+            }
+          }
         })
-        .then((authData: AuthModel) => {
-          if (pb.authStore.isValid) window.location.assign('/')
+        .then((user) => {
+          setInvalid('false')
+          if (user) {
+            console.log('User Created', user)
+            return auth(email, pass)
+          }
+          console.log('Unable to create user', { user })
+        })
+        .then(() => {
+          const {authStore} = pb
+          console.log({authStore})
+          // if (pb.authStore.isValid) window.location.href = '/'
         })
 
     setLoading(false)
   }
 
   return (
-    <main className='container'>
+    <main>
+      <h1 aria-busy={loading}>Login</h1>
       <form onSubmit={handleSubmit}>
-        <input
-          name='email'
-          type='email'
-          aria-invalid={emailInfo.length ? 'true' : 'false'}
-          onInput={() => setEmailInfo('')}
-        />
-        {emailInfo && <small className='error'>{emailInfo}</small>}
+        <input name='email' type='email' aria-invalid={invalid ?? 'grammar'} />
+        {invalid === 'true' && (
+          <small className='error'>{emailError}</small>
+        )}
 
         <input name='pass' type='password' autoComplete={'true'} />
-        {passInfo && <small className='warning'>{passInfo}</small>}
 
-        <input type='submit' disabled={loading} aria-busy={loading} />
+        {loading && <progress></progress>}
+        <input type='submit' disabled={loading} />
       </form>
     </main>
   )
