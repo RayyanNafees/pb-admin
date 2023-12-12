@@ -15,8 +15,7 @@ routerAdd('GET', '/hash/:col', c => {
 
   $app.dao().db().select('id').from(col)
     .all(result)
-  console.log(result)
-  
+
   const ids = result.reduce((prev, current) => prev += current.id, '')
 
   const idhash = $security.md5(ids)
