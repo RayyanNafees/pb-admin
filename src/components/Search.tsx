@@ -1,23 +1,25 @@
 import { useEffect, useState } from 'preact/hooks'
-import PocketBase, { type RecordModel } from 'pocketbase'
-
-const pb = new PocketBase(import.meta.env.PB_HOST)
+import pb from '../lib/pb'
+import type { RecordModel } from 'pocketbase'
 
 export default () => {
   const [records, setRecords] = useState<RecordModel[]>([])
   const [loading, setLoading] = useState(false)
+  const [search, setSearch] = useState('')
+  const [subtext, setSubtext] = useState('')
 
   useEffect(() => {
-    // if (!pb.authStore.isValid) window.location.assign('/login')
+    if (!pb.authStore.isValid) window.location.assign('/login')
   }, [])
 
-  const handleSearch = async ({
-    currentTarget,
-  }: {
-    currentTarget: HTMLInputElement
-  }) => {
+  useEffect(() => {
+    const searching = setTimeout(handleSearch, 500)
+    return () => clearTimeout(searching)
+  }, [search])
+
+  const handleSearch = async () => {
+    if (!search) return
     setLoading(true)
-    const search = currentTarget!.value
 
     const users = await pb
       .collection('users')
@@ -30,25 +32,17 @@ export default () => {
       })
 
     setRecords(users.items)
+    if (!users.items.length) setSubtext(`No records for ${search}!`)
+
     setLoading(false)
   }
 
   return (
     <main class='container'>
-      <h1>Searching Records</h1>
       <nav>
         <ul>
           <li>
-            <strong>
-              <input
-                type='search'
-                id='search'
-                name='search'
-                placeholder='Search for the record'
-                onInput={handleSearch}
-                aria-busy={loading}
-              />
-            </strong>
+            <h1>Searching Records</h1>
           </li>
         </ul>
         <ul>
@@ -60,7 +54,15 @@ export default () => {
           </li>
         </ul>
       </nav>
-
+      <input
+        type='search'
+        id='search'
+        name='search'
+        placeholder='Search for the record'
+        value={search}
+        onInput={(e) => setSearch(e.currentTarget.value)}
+        aria-busy={loading}
+      />
       {loading && (
         <a href='#' aria-busy='true'>
           Loading Records...
@@ -70,16 +72,20 @@ export default () => {
       <main className={'container'}>
         {records.map((rec) => (
           <article>
-            <header>
-              <hgroup>
-                <h1>{rec.name}</h1>
-                <h2>{rec.email}</h2>
-              </hgroup>
-            </header>
-            {rec.id}
-            <footer>{rec.collectionName}</footer>
+            <hgroup>
+              <h1>{rec.name}</h1>
+              <i><small>{rec.id}</small></i>
+              <h2>{rec.email}</h2>
+            </hgroup>
           </article>
         ))}
+        <i>
+          <small
+            style={{ display: 'block', width: '100%', textAlign: 'center' }}
+          >
+            {subtext}
+          </small>
+        </i>
       </main>
     </main>
   )

@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'preact/hooks'
-import pb, {createUser, auth} from '../lib/pb'
+import pb, { createUser, auth } from '../lib/pb'
+import type { ClientResponseError } from 'pocketbase'
 
 export default () => {
-  useEffect(()=>{
-    
-  }, [])  
+  useEffect(() => {
+    if (pb.authStore.isValid) window.location.replace('/')
+  }, [])
 
   const [loading, setLoading] = useState(false)
   const [emailError, setEmailError] = useState('')
@@ -20,29 +21,30 @@ export default () => {
       new FormData(form).entries()
     ) as { email: string; pass: string }
 
-      await createUser(email, pass)
-        .catch((e) => {
-          console.log({ e })
-          if (e.code === 400) {
-            if (e.data.email.code === 'validation_invalid_email') {
-              setInvalid('true')
-              setEmailError(e.data.email.message)
-            }
-          }
-        })
-        .then((user) => {
+    await createUser(email, pass)
+      .then((user) => {
+        if (user) {
           setInvalid('false')
-          if (user) {
-            console.log('User Created', user)
-            return auth(email, pass)
+          console.log('User Created', user)
+          return auth(email, pass)
+        }
+        console.log('Unable to create user')
+        setInvalid('true')
+      })
+      .then(() => {
+        const { authStore } = pb
+        console.log({ authStore })
+        if (authStore.isValid) window.location.href = '/'
+      })
+      .catch((e: ClientResponseError) => {
+        console.log({ e })
+        if (e.status === 400) {
+          if (e.data.data.email.code === 'validation_invalid_email') {
+            setInvalid('true')
+            setEmailError(e.data.data.email.message)
           }
-          console.log('Unable to create user', { user })
-        })
-        .then(() => {
-          const {authStore} = pb
-          console.log({authStore})
-          // if (pb.authStore.isValid) window.location.href = '/'
-        })
+        }
+      })
 
     setLoading(false)
   }
@@ -52,11 +54,9 @@ export default () => {
       <h1 aria-busy={loading}>Login</h1>
       <form onSubmit={handleSubmit}>
         <input name='email' type='email' aria-invalid={invalid ?? 'grammar'} />
-        {invalid === 'true' && (
-          <small className='error'>{emailError}</small>
-        )}
+        {invalid === 'true' && <small className='error'>{emailError}</small>}
 
-        <input name='pass' type='password' autoComplete={'true'} />
+        <input name='pass' type='password' />
 
         {loading && <progress></progress>}
         <input type='submit' disabled={loading} />
