@@ -41,7 +41,7 @@ bun run dev
 ## TODO
 - [ ] create it offline-first with service workers
 - [ ] Use the pocketbase `/hash` endpoint to check for cloud changes to sync with the client on connection
-- [ ] A method to check for user connectivity over fetch
+- [X] A method to check for user connectivity over fetch [navigator.onLine](https://developer.mozilla.org/en-US/docs/Web/API/Navigator/onLine) & [navigator.connection](https://developer.mozilla.org/en-US/docs/Web/API/Navigator/connection)
 - [ ] Storing images in IndexedDB using Dexie
 
 
