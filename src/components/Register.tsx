@@ -83,7 +83,7 @@ export default () => {
   }
 
   return (
-    <main className='container' style={{ marginTop: 30, width: '30%' }}>
+    <main className='container' style={{ marginTop: 10, width: '30%' }}>
       <hgroup>
         <h1 aria-busy={loading}>Create Account</h1>
         <h6>
@@ -142,8 +142,8 @@ export default () => {
           {confirmError}
         </small>
 
-        <progress style={{ opacity: +loading }}></progress>
         <input type='submit' disabled={loading} />
+        <progress style={{ opacity: +loading }}></progress>
       </form>
     </main>
   )
