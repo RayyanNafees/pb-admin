@@ -18,7 +18,10 @@ export default () => {
   }, [search])
 
   const handleSearch = async () => {
-    if (!search) return
+    if (!search) {
+      if (records.length) setRecords([])
+      return
+    }
     setLoading(true)
 
     const users = await pb
