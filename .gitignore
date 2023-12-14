@@ -27,3 +27,6 @@ pnpm-debug.log*
 
 # editor
 .vscode
+
+# Content Collections
+.astro

@@ -9,6 +9,7 @@ import spotlightjs from "@spotlightjs/astro";
 export default defineConfig({
   integrations: [preact(), sentry(), spotlightjs()],
   outDir: 'server/pb_public',
+  prefetch: true,
   vite: {
     plugins: [million.vite({
       mode: 'preact',
