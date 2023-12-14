@@ -1,24 +1,27 @@
 import { useEffect, useState } from 'preact/hooks'
 import pb, { createUser, auth } from '../lib/pb'
 import type { ClientResponseError } from 'pocketbase'
+import type { UserCreds } from '../types/auth'
 
-type UserCreds = { email: string; pass: string; passwordConfirm?: string }
 
 export default () => {
   useEffect(() => {
     if (pb.authStore.isValid) window.location.replace('/')
   }, [])
 
-
   const [loading, setLoading] = useState(false)
 
   const [emailError, setEmailError] = useState('')
+  const [usernameError, setUsernameError] = useState('')
   const [passError, setPassError] = useState('')
   const [confirmError, setConfirmError] = useState('')
 
   const [invalidEmail, setInvalidEmail] = useState<null | 'true' | 'false'>(
     null
   )
+  const [invalidUsername, setInvalidUsername] = useState<
+    null | 'true' | 'false'
+  >(null)
   const [invalidPass, setInvalidPass] = useState<null | 'true' | 'false'>(null)
   const [invalidPassConfirm, setInvalidPassConfirm] = useState<
     null | 'true' | 'false'
@@ -27,32 +30,36 @@ export default () => {
   const handleSubmit = async (e: SubmitEvent) => {
     e.preventDefault()
 
-    setLoading(true)
-
     const form = e.currentTarget as HTMLFormElement
-    const { email, pass, passwordConfirm } = Object.fromEntries(
+    const userData = Object.fromEntries(
       new FormData(form).entries()
     ) as UserCreds
+      console.log({userData})
+    if (userData.password !== userData.passwordConfirm) {
+      setInvalidPassConfirm('true')
+      setConfirmError('Passwords do not match')
+      return
+    }
 
-    await createUser(email, pass)
+    setLoading(true)
+
+    await createUser(userData)
       .then((user) => {
         if (user) {
           setInvalidEmail('false')
           console.log('User Created', user)
-          return auth(email, pass)
+          return auth(userData.email, userData.password)
         }
         console.log('Unable to create user')
         setInvalidEmail('true')
       })
       .then(() => {
-        const { authStore } = pb
-        console.log({ authStore })
-        if (authStore.isValid) window.location.href = '/'
+        if (pb.authStore.isValid) window.location.href = '/'
       })
       .catch((e: ClientResponseError) => {
         console.log({ e })
         if (e.status === 400) {
-          const { email, password, passwordConfirm } = e.data.data
+          const { email, password, passwordConfirm, username } = e.data.data
           if (email) {
             setInvalidEmail('true')
             setEmailError(email.message)
@@ -65,6 +72,10 @@ export default () => {
             setInvalidPassConfirm('true')
             setConfirmError(passwordConfirm.message)
           }
+          if (username) {
+            setInvalidUsername('true')
+            setUsernameError(username.message)
+          }
         }
       })
 
@@ -72,32 +83,51 @@ export default () => {
   }
 
   return (
-    <main className='container' style={{marginTop: 50}}>
+    <main className='container' style={{ marginTop: 30, width: '30%' }}>
       <hgroup>
-      <h1 aria-busy={loading}>Create Account</h1>
-      <h6><a href="/login">Already have an account</a></h6>
+        <h1 aria-busy={loading}>Create Account</h1>
+        <h6>
+          <a href='/login'>Already have an account</a>
+        </h6>
       </hgroup>
       <form onSubmit={handleSubmit}>
+        <input
+          name='name'
+          placeholder='Full name'
+          aria-placeholder='Full name'
+        />
+
+        <input
+          name='username'
+          placeholder='Account Username'
+          aria-placeholder='Username'
+          aria-invalid={invalidUsername ?? 'grammar'}
+          onInput={() => setInvalidUsername(null)}
+        />
+        <small style={{ opacity: +Boolean(invalidUsername) }}>
+          {usernameError}
+        </small>
+
         <input
           name='email'
           type='email'
           placeholder='Email'
           aria-placeholder='Email'
+          onInput={() => setInvalidEmail(null)}
           aria-invalid={invalidEmail ?? 'grammar'}
         />
-        {invalidEmail === 'true' && (
-          <small className='error'>{emailError}</small>
-        )}
+        <small style={{ opacity: +Boolean(invalidEmail) }}>{emailError}</small>
 
         <input
-          name='pass'
+          name='password'
           type='password'
           placeholder='Password'
           aria-placeholder='Password'
           autoComplete={'true'}
+          onInput={() => setInvalidPass(null)}
           aria-invalid={invalidPass ?? 'grammar'}
         />
-        {invalidPass === 'true' && <small className='error'>{passError}</small>}
+        <small style={{ opacity: +Boolean(invalidPass) }}>{passError}</small>
 
         <input
           name='passwordConfirm'
@@ -105,13 +135,14 @@ export default () => {
           placeholder='Confirm Password'
           aria-placeholder='Confirm Password'
           autoComplete={'true'}
+          onInput={() => setInvalidPassConfirm(null)}
           aria-invalid={invalidPassConfirm ?? 'grammar'}
         />
-        {invalidPassConfirm === 'true' && (
-          <small className='error'>{confirmError}</small>
-        )}
+        <small style={{ opacity: +Boolean(invalidPassConfirm) }}>
+          {confirmError}
+        </small>
 
-        {loading && <progress></progress>}
+        <progress style={{ opacity: +loading }}></progress>
         <input type='submit' disabled={loading} />
       </form>
     </main>
