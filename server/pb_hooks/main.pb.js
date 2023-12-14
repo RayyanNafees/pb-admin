@@ -26,18 +26,3 @@ routerAdd('GET', '/hash/:col', c => {
 
   return c.string(200, idhash)
 })
-
-
-
-// Collection Schema
-routerAdd('GET', 'schema/:col', c => {
-  const col = c.pathParam('col').replace(/\//g, '')
-  console.log(col)
-  if (!col)
-    return c.string(400, `<h1>Invalid Reques</h1><br />
-  <h6>fetch URL:<a href=\`#\'>/schema/&lt;collection&gt;</a>
-  `)
-
-  const {schema} = $app.dao().findCollectionByNameOrId(col)
-  return c.json(200, schema)
-})
