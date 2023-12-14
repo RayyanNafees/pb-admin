@@ -60,8 +60,8 @@ export default () => {
       </hgroup>
       <form onSubmit={handleSubmit}>
         <input
-           placeholder='Email'
-           aria-placeholder='Email'
+          placeholder='Email'
+          aria-placeholder='Email'
           name='email'
           type='email'
           aria-invalid={invalid ?? 'grammar'}
@@ -78,8 +78,12 @@ export default () => {
         />
         {invalidPass === 'true' && <small className='error'>{passError}</small>}
 
-        {loading && <progress></progress>}
-        <input type='submit' disabled={loading} />
+        <button
+          disabled={loading}
+          aria-busy={String(loading) as 'true' | 'false'}
+        >
+          Register
+        </button>
       </form>
     </main>
   )

@@ -142,8 +142,7 @@ export default () => {
           {confirmError}
         </small>
 
-        <input type='submit' disabled={loading} />
-        <progress style={{ opacity: +loading }}></progress>
+        <button disabled={loading} aria-busy={String(loading) as 'true'|'false'}>Register</button>
       </form>
     </main>
   )
