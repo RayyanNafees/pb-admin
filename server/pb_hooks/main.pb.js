@@ -1,3 +1,5 @@
+// HASH
+
 routerAdd("GET", "/hash", (c) => {
   const dbfilestr = $os.readFile(`${__hooks}/../pb_data/data.db`)
 
@@ -6,7 +8,9 @@ routerAdd("GET", "/hash", (c) => {
 })
 
 routerAdd('GET', '/hash/:col', c => {
-  let col = c.pathParam("col") || 'users'
+  const col = c.pathParam("col")
+  if (!col)
+    return c.string(400, '<h1>Invalid Reques</h1><br /><h6>fetch URL: <a href=\'#\'>/hash/&lt;collection&gt;</a></h6>')
 
   const result = arrayOf(new DynamicModel({
     "id": "",
@@ -23,3 +27,17 @@ routerAdd('GET', '/hash/:col', c => {
   return c.string(200, idhash)
 })
 
+
+
+// Collection Schema
+routerAdd('GET', 'schema/:col', c => {
+  const col = c.pathParam('col').replace(/\//g, '')
+  console.log(col)
+  if (!col)
+    return c.string(400, `<h1>Invalid Reques</h1><br />
+  <h6>fetch URL:<a href=\`#\'>/schema/&lt;collection&gt;</a>
+  `)
+
+  const {schema} = $app.dao().findCollectionByNameOrId(col)
+  return c.json(200, schema)
+})
