@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'preact/hooks'
-import pb, { createUser as loginUser, auth } from '../lib/pb'
+import pb, { auth } from '../lib/pb'
 import type { ClientResponseError } from 'pocketbase'
 
 export default () => {
@@ -51,7 +51,7 @@ export default () => {
   }
 
   return (
-    <main className='container' style={{ marginTop: 50 }}>
+    <main className='container' style={{ marginTop: 50,  width: '30%' }}>
       <hgroup>
         <h1 aria-busy={loading}>Login</h1>
         <h6>
@@ -82,7 +82,7 @@ export default () => {
           disabled={loading}
           aria-busy={String(loading) as 'true' | 'false'}
         >
-          Register
+          Login
         </button>
       </form>
     </main>

@@ -1,8 +1,9 @@
 ---
-import LoginUI from '../components/Login';
+import LoginUI from '../components/Login'
 import BaseLayout from '../layouts/BaseLayout.astro'
+
 ---
 
 <BaseLayout>
-  <LoginUI client:idle/>
+  <LoginUI client:load />
 </BaseLayout>
