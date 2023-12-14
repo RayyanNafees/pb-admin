@@ -15,6 +15,8 @@
     "@nanostores/persistent": "^0.9.1",
     "@nanostores/preact": "^0.5.0",
     "@picocss/pico": "^1.5.10",
+    "@sentry/astro": "^7.87.0",
+    "@spotlightjs/astro": "^1.0.6",
     "astro": "^4.0.4",
     "million": "latest",
     "nanostores": "^0.9.5",
