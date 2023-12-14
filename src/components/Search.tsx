@@ -2,11 +2,14 @@ import { useEffect, useState } from 'preact/hooks'
 import pb from '../lib/pb'
 import type { RecordModel } from 'pocketbase'
 
+const currentUser = pb.authStore.model
+
 export default () => {
   const [records, setRecords] = useState<RecordModel[]>([])
   const [loading, setLoading] = useState(false)
   const [search, setSearch] = useState('')
   const [subtext, setSubtext] = useState('')
+
 
   useEffect(() => {
     if (!pb.authStore.isValid) window.location.assign('/login')
@@ -50,10 +53,10 @@ export default () => {
         </ul>
         <ul>
           <li>
-            <a href='/login'>Login</a>
+            {currentUser?.name || currentUser?.email}
           </li>
           <li>
-            <a href='/logout' role='button'>
+            <a href='/logout' role='button' class='secondary'>
               Log Out
             </a>
           </li>

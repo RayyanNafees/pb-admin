@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'preact/hooks'
-import pb, { createUser, auth } from '../lib/pb'
+import pb, { createUser as loginUser, auth } from '../lib/pb'
 import type { ClientResponseError } from 'pocketbase'
 
 export default () => {
@@ -25,20 +25,12 @@ export default () => {
       new FormData(form).entries()
     ) as { email: string; pass: string }
 
-    await createUser(email, pass)
+    await auth(email, pass)
       .then((user) => {
-        if (user) {
-          setInvalid('false')
-          console.log('User Created', user)
-          return auth(email, pass)
-        }
-        console.log('Unable to create user')
-        setInvalid('true')
-      })
-      .then(() => {
-        const { authStore } = pb
-        console.log({ authStore })
-        if (authStore.isValid) window.location.href = '/'
+        invalid ?? setInvalid('false')
+
+        console.log({ user, authStore: pb.authStore })
+        if (pb.authStore.isValid) window.location.href = '/'
       })
       .catch((e: ClientResponseError) => {
         console.log({ e })
@@ -48,7 +40,7 @@ export default () => {
             setInvalid('true')
             setEmailError(email.message)
           }
-          if (password){
+          if (password) {
             setInvalidPass('true')
             setPassError(password.message)
           }
@@ -59,13 +51,31 @@ export default () => {
   }
 
   return (
-    <main className='container'>
-      <h1 aria-busy={loading}>Create User</h1>
+    <main className='container' style={{ marginTop: 50 }}>
+      <hgroup>
+        <h1 aria-busy={loading}>Login</h1>
+        <h6>
+          <a href='/register'>I dont have an account!</a>
+        </h6>
+      </hgroup>
       <form onSubmit={handleSubmit}>
-        <input name='email' type='email' aria-invalid={invalid ?? 'grammar'} />
+        <input
+           placeholder='Email'
+           aria-placeholder='Email'
+          name='email'
+          type='email'
+          aria-invalid={invalid ?? 'grammar'}
+        />
         {invalid === 'true' && <small className='error'>{emailError}</small>}
 
-        <input name='pass' type='password' autoComplete={'true'} aria-invalid={invalidPass ?? 'grammar'}  />
+        <input
+          name='pass'
+          type='password'
+          placeholder='Password'
+          aria-placeholder='Password'
+          autoComplete={'true'}
+          aria-invalid={invalidPass ?? 'grammar'}
+        />
         {invalidPass === 'true' && <small className='error'>{passError}</small>}
 
         {loading && <progress></progress>}
