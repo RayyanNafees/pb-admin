@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'preact/hooks'
 import pb from '../lib/pb'
 import type { RecordModel } from 'pocketbase'
+import { z } from 'astro/zod'
 
 const currentUser = pb.authStore.model
+
 
 export default () => {
   const [records, setRecords] = useState<RecordModel[]>([])
   const [loading, setLoading] = useState(false)
   const [search, setSearch] = useState('')
-  const [subtext, setSubtext] = useState('')
 
 
   useEffect(() => {
@@ -38,7 +39,6 @@ export default () => {
       })
 
     setRecords(users.items)
-    if (!users.items.length) setSubtext(`No records for ${search}!`)
 
     setLoading(false)
   }
@@ -89,13 +89,13 @@ export default () => {
             </hgroup>
           </article>
         ))}
-        <i>
+        {search && !records.length &&  <i>
           <small
             style={{ display: 'block', width: '100%', textAlign: 'center' }}
           >
-            {subtext}
+            No records for ${search}!
           </small>
-        </i>
+        </i>}
       </main>
     </main>
   )
