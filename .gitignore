@@ -30,3 +30,6 @@ pnpm-debug.log*
 
 # Content Collections
 .astro
+
+# dummy files
+test.astro

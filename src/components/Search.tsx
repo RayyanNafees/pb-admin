@@ -93,7 +93,7 @@ export default () => {
           <small
             style={{ display: 'block', width: '100%', textAlign: 'center' }}
           >
-            No records for ${search}!
+            No records for {search}!
           </small>
         </i>}
       </main>

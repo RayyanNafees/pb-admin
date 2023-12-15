@@ -53,7 +53,19 @@ export default () => {
   return (
     <main className='container' style={{ marginTop: 50, width: '30%' }}>
       <h1 aria-busy={loading}>Admin Login</h1>
-
+      <section>
+        <h6>Login with github</h6>
+        <a
+          role='button'
+          href={
+            'https://github.com/login/oauth/authorize?client_id=' +
+            import.meta.env.PUBLIC_GITHUB_OAUTH_CLIENT_ID
+          }
+        >
+          Login with GitHub
+        </a>
+      </section>
+      <hr>OR</hr>
       <form onSubmit={handleSubmit}>
         <input
           placeholder='Email'
