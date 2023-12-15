@@ -4,11 +4,13 @@ import path from 'node:path'
 import { faker } from '@faker-js/faker'
 import type { ZodTypeAny } from 'astro/zod'
 import YAML from 'yamljs'
+import type { RecordModel } from 'pocketbase'
 
-const dirPath = (dir: string) => path.join(process.cwd(), '/src/content/', dir)
+const dirPath = (...dir: string[]) =>
+  path.join(process.cwd(), '/src/content/', ...dir)
 
 // CHeck if a directory exists at a given path or not from the base directory of the project
-export const dirExists = async (dir: string) => {
+export const exists = async (dir: string) => {
   try {
     await fs.access(dirPath(dir))
     return true
@@ -32,7 +34,6 @@ ${YAML.stringify(frontmatter)}
 ---
 ${body}`
 }
-
 // Write mock content to a directory
 export const writeMockContent = async (
   collections: Record<string, { type: string; schema: ZodTypeAny }>
@@ -50,7 +51,7 @@ export const writeMockContent = async (
 
     const mockData = Encoder.stringify(mockObject)
 
-    if (!(await dirExists(dir)) || (await dirEmpty(dir))) {
+    if (!(await exists(dir)) || (await dirEmpty(dir))) {
       const ext = type === 'content' ? '.md' : '.json'
       await fs.mkdir(folderPath, { recursive: true })
       return fs
@@ -62,5 +63,41 @@ export const writeMockContent = async (
         .then((file) => console.log('Created file ', file))
         .catch(console.error)
     }
+  }
+}
+
+// Syncs Pocketbase Collections data with Astro Content Collections
+export const syncPBdata = async (
+  collections: Record<string, { type: string; schema: ZodTypeAny }>
+) => {
+  if (!import.meta.env.DEV) return
+
+  const pb = (await import('@/lib/pb')).default
+
+  for (const dir in collections) {
+    const { type } = collections[dir]
+    await pb
+      .collection(dir)
+      .getFullList()
+      .then((records) =>
+        records.map(async (mockObject: RecordModel) => {
+          console.log(mockObject)
+          const ext = type === 'content' ? '.md' : '.json'
+          const Encoder = collections[dir].type === 'content' ? MD : JSON
+
+          const mockData = Encoder.stringify(mockObject)
+
+          const folderPath = dirPath(dir)
+          const filePath = dirPath(dir, `${mockObject.slug || mockObject.id}${ext}`)
+
+          if (!(await exists(filePath))) {
+            await fs.mkdir(folderPath, { recursive: true })
+            return fs
+              .writeFile(filePath, mockData, 'utf8')
+              .then((file) => console.log('Created file ', file))
+              .catch(console.error)
+          }
+        })
+      )
   }
 }
